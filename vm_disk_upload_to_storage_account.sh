@@ -24,7 +24,7 @@ storageAccountName="yourstorageaccountName"
 storageContainerName="yourstoragecontainername"
 
 #Provide the name of the destination VHD file to which the VHD of the managed disk will be copied.
-destinationVHDFileName="backup__$diskName"
+destinationVHDFileName="backup__${diskName}.vhd"
 
 ###################################################################################
 # Execution
