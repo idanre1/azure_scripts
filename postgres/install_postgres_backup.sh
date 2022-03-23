@@ -26,3 +26,6 @@ DB_PATH=$2
 sudo mkdir $DB_PATH/database_archive_wal
 sudo chown postgres:postgres $DB_PATH/database_archive_wal
 
+sudo sh -c "echo archive_mode = on >> /etc/postgresql/12/main/postgresql.conf"
+sudo sh -c "echo archive_command = 'test ! -f $DB_PATH/database_archive_wal/%f && cp %p $DB_PATH/database_archive_wal/%f' >> /etc/postgresql/12/main/postgresql.conf"
+echo "fff" | perl -ne "chomp;print(chr(39));print;print(chr(39));print(chr(10));"
