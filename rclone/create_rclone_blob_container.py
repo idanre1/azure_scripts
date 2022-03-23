@@ -50,7 +50,7 @@ parser.add_argument("-n", "--container_name", action='store', type=str, required
 
 args = parser.parse_args()
 filename = f'storage--{args.account}--{args.container_name}'
-display_name = f'{args.container_name}_rclone'
+display_name = f'{args.container_name}_rclone.json'
 
 # Creating rbac credentials
 res=az_cli(f'ad sp create-for-rbac \
@@ -66,6 +66,6 @@ d['displayName']=display_name
 d['password']=res['password']
 d['tenant']=tenantId
 
-print('Credentials file: %s.json' % filename)
+print('Credentials file: %s' % filename)
 with open(filename, "w") as out_file:
   json.dump(d, out_file, indent = 4)
