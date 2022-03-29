@@ -26,3 +26,4 @@ DB_PATH=$2
 sudo mkdir $DB_PATH/database_archive_wal
 sudo chown postgres:postgres $DB_PATH/database_archive_wal
 
+sudo sh -c 'echo "idan regev 1" | python3 -c "import sys; txt=sys.stdin.read().strip(); print(f\"{sys.argv[1]}={chr(34)}{txt}{chr(34)}\")" ddd ' >> ddddd
