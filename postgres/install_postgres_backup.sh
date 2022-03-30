@@ -1,24 +1,16 @@
 #!/bin/bash
 # Check arguments
-if [[ $# < 2 ]]; then
-	echo "Usage: $0 <json_file> <db_path>"
+if [[ $# < 1 ]]; then
+	echo "Usage: $0 <db_path>"
 	exit 1
 fi
-
-# conf file exists
-if [[ ! -e $1 ]]; then
-	echo "Error: json conf file $1 does not exists"
-	exit 1
-fi
-JSON=$1
-chmod 600 $JSON
 
 # postgres persistant path exists
-if [[ ! -d $2 ]]; then
-    echo "Error: db_path $2 does not exists"
+if [[ ! -d $1 ]]; then
+    echo "Error: db_path $1 does not exists"
     exit 1
 fi
-DB_PATH=$2
+DB_PATH=$1
 
 # ---------------------------
 # main
@@ -36,3 +28,5 @@ sudo systemctl restart postgresql@12-main
 
 echo "*** Manual backup"
 sudo -u postgres pg_basebackup -D $DB_PATH/database_backup
+
+echo "*** Done"
