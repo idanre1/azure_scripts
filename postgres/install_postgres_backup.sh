@@ -23,11 +23,16 @@ DB_PATH=$2
 # ---------------------------
 # main
 # ---------------------------
-sudo mkdir $DB_PATH/database_archive_wal
-sudo chown postgres:postgres $DB_PATH/database_archive_wal
-
-sudo sh -c 'echo "idan regev 1" | python3 -c "import sys; txt=sys.stdin.read().strip(); print(f\"{sys.argv[1]}={chr(34)}{txt}{chr(34)}\")" ddd ' >> ddddd
+echo "*** Setup config"
+sudo mkdir -p $DB_PATH/database_archive_wal
+sudo mkdir -p $DB_PATH/database_backup
+sudo chown postgres:postgres $DB_PATH/database_archive_wal $DB_PATH/database_backup
 
 sudo sh -c "echo archive_mode = on >> /etc/postgresql/12/main/postgresql.conf"
-sudo sh -c "echo archive_command = 'test ! -f $DB_PATH/database_archive_wal/%f && cp %p $DB_PATH/database_archive_wal/%f' >> /etc/postgresql/12/main/postgresql.conf"
-echo "fff" | perl -ne "chomp;print(chr(39));print;print(chr(39));print(chr(10));"
+sudo sh -c 'echo "test ! -f $0/database_archive_wal/%f && cp %p $0/database_archive_wal/%f" | python3 -c "import sys; txt=sys.stdin.read().strip(); print(f\"{sys.argv[1]}={chr(39)}{txt}{chr(39)}\")" archive_command >> /etc/postgresql/12/main/postgresql.conf' $DB_PATH
+
+echo "*** Restarting postgres"
+sudo systemctl restart postgresql@12-main
+
+echo "*** Manual backup"
+sudo -u postgres pg_basebackup -D $DB_PATH/database_backup
