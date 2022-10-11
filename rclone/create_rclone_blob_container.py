@@ -18,8 +18,8 @@ parser.add_argument("-a", "--account", action='store', type=str, required=True, 
 parser.add_argument("-n", "--container_name", action='store', type=str, required=True,    help="Container name for granting RBAC credentials")
 
 args = parser.parse_args()
-filename = f'storage--{args.account}--{args.container_name}'
-display_name = f'{args.container_name}_rclone.json'
+filename = f'storage--{args.account}--{args.container_name}.json'
+display_name = f'{args.container_name}_rclone'
 
 # Creating rbac credentials
 res=az_cli(f'ad sp create-for-rbac \
