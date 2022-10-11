@@ -1,10 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "../../azure-env-crypt"
+			"path": "."
 		},
 		{
-			"path": "."
+			"path": "/nas/python_lib/azure_env_crypt"
 		}
 	]
 }

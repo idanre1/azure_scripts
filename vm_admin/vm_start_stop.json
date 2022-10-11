@@ -1,0 +1,16 @@
+{
+    "Name": "Virtual Machine User (Read/Start/Stop)",
+    "IsCustom": true,
+    "Description": "Can deallocate, start  and restart virtual machines.",
+    "Actions": [
+      "Microsoft.Compute/*/read",
+      "Microsoft.Compute/virtualMachines/start/action",
+      "Microsoft.Compute/virtualMachines/restart/action",
+      "Microsoft.Compute/virtualMachines/deallocate/action"
+    ],
+    "NotActions": [],
+    "AssignableScopes": [
+      "/subscriptions/__SUBSCRIPTION__"
+    ]
+  }
+  
