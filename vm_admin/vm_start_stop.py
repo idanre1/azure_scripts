@@ -97,7 +97,7 @@ print(f'Role ID is: {name}')
 pathlib.Path('TEMP_vm_start_stop.json').unlink()
 
 # assign SP to role
-Json_create=az_cli(f'ad sp create-for-rbac -n {args.name} --role "{name}" --scopes /subscriptions/{subscription}/resourceGroups/{args.rg}')
+Json_create=az_cli(f'ad sp create-for-rbac -n {args.name} --role {name} --scopes /subscriptions/{subscription}/resourceGroups/{args.rg}')
 appId=Json_create["appId"]
 password=Json_create["password"]
 
