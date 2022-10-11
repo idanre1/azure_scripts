@@ -30,7 +30,6 @@ res=az_cli(f'ad sp create-for-rbac \
 # RBAC credentials to JSON
 d = {}
 d['appId']=res['appId']
-d['name']=res['appId']
 d['displayName']=display_name
 d['password']=res['password']
 d['tenant']=tenantId
