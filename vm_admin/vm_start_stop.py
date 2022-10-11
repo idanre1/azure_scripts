@@ -1,50 +1,9 @@
 # pip install azure-cli
-from azure.cli.core import get_default_cli
-from azure_env_crypt import aesCryptJson
+from azure_env_crypt import aesCryptJson, az_cli, az_login
 import json
-debug=False
-#https://aka.ms/azadsp-cli
 
-def az_cli(args_str, verbose=True):
-	import re
-	'''
-	Sign-in to azure if not already signed in from terminal
-	'''
-	# init
-	jsondata=None
-
-	# argument span
-	args = f'{args_str} -o none'.split()
-	args = [sub.replace('#', ' ') for sub in args] # When some argument needs spaces use '#' instead (# is comment in linux, thus a reasonable choice)
-	if debug:
-		print(args)
-	
-	# Invoke client
-	cli = get_default_cli()
-	res = cli.invoke(args)
-	if cli.result.result:
-		jsondata = cli.result.result
-	elif cli.result.error:
-		if verbose:
-			#Please run 'az login' to setup account.
-			print(cli.result.error)
-		x = re.findall("Please run .az login. to setup account", str(cli.result.error))
-		if len(x) > 0:
-			raise EnvironmentError('AZ Login Error')
-
-	# Return json result to main
-	return jsondata       
-
-# --------------------------------------------------
-# Login
-# --------------------------------------------------
-try:
-	# Check we already logged in
-	az_cli('ad signed-in-user show', verbose=False)
-	print('az already logged_in')
-except EnvironmentError:
-	print('az is not logged in, please perform manual login')
-	az_cli('login --use-device-code')#, echo=True)
+# Check login
+az_login()
 
 # Using default subscription
 res=az_cli('account list')
