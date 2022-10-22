@@ -14,10 +14,11 @@ filename = f'storage--{args.account}--{args.name}.cred'
 
 # Check mount
 import os
+USR=os.environ.get('USER')
 msg=f'''
 # How to create path correctly
 sudo mkdir -p {args.mount_path}
-sudo chown {os.environ.get('USER')} {args.mount_path}
+sudo chown {USR} {args.mount_path}
 '''
 assert os.path.exists(args.mount_path), f"Mount does not exists\n{msg}"
 assert len(os.listdir(args.mount_path)) == 0, f"Mount path is not empty\n{msg}"
@@ -69,16 +70,18 @@ fileshare=f'{httpEndpoint}{args.name}'
 credentialRoot="/etc/smbcredentials"
 
 msg = f'''
+#https://learn.microsoft.com/en-us/azure/storage/files/storage-how-to-use-files-linux?tabs=smb311
 # How to mount:
+sudo mkdir -p {credentialRoot}
 sudo mv {filename} {credentialRoot}/
 sudo chmod 600 {credentialRoot}/{filename}
+sudo chown root /etc/smbcredentials/storage--finance1idan--data-registry.cred
 # add to /etc/fstab:
 if [ -z "$(grep {fileshare}\ {args.mount_path} /etc/fstab)" ]; then
-    echo {fileshare} {args.mount_path} cifs nofail,credentials={credentialRoot}/{filename},serverino,nosharesock,actimeo=30" | sudo tee -a /etc/fstab > /dev/null')
+    echo "{fileshare} {args.mount_path} cifs nofail,credentials={credentialRoot}/{filename},serverino,nosharesock,actimeo=30,uid={USR}" | sudo tee -a /etc/fstab > /dev/null
 else
     echo "/etc/fstab was not modified to avoid conflicting entries as this Azure file share was already present. You may want to double check /etc/fstab to ensure the configuration is as desired."
 fi
 sudo mount -a
 '''
 print(msg)
-
