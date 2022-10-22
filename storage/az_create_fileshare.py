@@ -70,7 +70,7 @@ credentialRoot="/etc/smbcredentials"
 
 msg = f'''
 # How to mount:
-sudo cp {filename} {credentialRoot}/
+sudo mv {filename} {credentialRoot}/
 sudo chmod 600 {credentialRoot}/{filename}
 # add to /etc/fstab:
 if [ -z "$(grep {fileshare}\ {args.mount_path} /etc/fstab)" ]; then
