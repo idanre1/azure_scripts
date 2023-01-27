@@ -75,7 +75,7 @@ msg = f'''
 sudo mkdir -p {credentialRoot}
 sudo mv {filename} {credentialRoot}/
 sudo chmod 600 {credentialRoot}/{filename}
-sudo chown root /etc/smbcredentials/storage--finance1idan--data-registry.cred
+sudo chown root {credentialRoot}/{filename}
 # add to /etc/fstab:
 if [ -z "$(grep {fileshare}\ {args.mount_path} /etc/fstab)" ]; then
     echo "{fileshare} {args.mount_path} cifs nofail,credentials={credentialRoot}/{filename},serverino,nosharesock,actimeo=30,uid={USR}" | sudo tee -a /etc/fstab > /dev/null
