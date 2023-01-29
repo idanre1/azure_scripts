@@ -6,6 +6,7 @@ from azure_env_crypt import aesCryptJson, az_cli, az_login
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-a", "--account", action='store', type=str, required=True, help="Storage account where container lives")
+parser.add_argument("-s", "--subscription", action='store', type=str, default='', help="Which subscription to handle")
 parser.add_argument("-n", "--name", action='store', type=str, required=True,    help="Container name for granting RBAC credentials")
 parser.add_argument("-m", "--mount_path", action='store', type=str, required=True,    help="Mount path to the fileshare")
 
@@ -26,10 +27,19 @@ assert len(os.listdir(args.mount_path)) == 0, f"Mount path is not empty\n{msg}"
 # Check login
 az_login()
 
-# Using default subscription
 res=az_cli('account list')
-subscription=res[0]['id']
-tenantId=res[0]['tenantId']
+if args.subscription == '':
+    # Using default subscription
+    assert len(res) == 1, f"More than one subscription provided:{[s['name'] for s in res]}"
+    subscription=res[0]['id']
+    tenantId=res[0]['tenantId']
+else:
+    for i,s in enumerate(res):
+        if args.subscription == s['name']:
+            subscription=res[i]['id']
+            tenantId=res[i]['tenantId']
+print(f'Subscription:{subscription}')
+print(f'TenantId:{tenantId}')
 
 # Find key
 res=az_cli(f'storage account keys list --account-name {args.account}')
