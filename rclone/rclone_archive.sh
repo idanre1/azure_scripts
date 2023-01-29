@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Usage: <storage_account> <container> <local_path_to_archive> [Tier]
 
 ACCOUNT=$1
@@ -7,14 +7,16 @@ PATH=$3
 
 if [ $# -eq 3 ]; then
     TIER='Hot' #,Cool,Archive
-elif [ $# -eq 4 ]; then
+    XXARGS=''
+elif [ $# -ge 4 ]; then
     TIER=$4 # Hot,Cool,Archive
+    XXARGS=${@:5}
 else
     echo "Arguments mismatch"
 fi
 
 echo "Selected Tier: $TIER"
-if [ $TIER = 'Archive' ]; then
+if [ "$TIER" = 'Archive' ]; then
     echo "*** WARNING: You selected archive, please approve [Yes]"
     read approval
     if [ $approval != 'Yes' ]; then
@@ -23,4 +25,4 @@ if [ $TIER = 'Archive' ]; then
     fi
 fi
 
-/usr/bin/rclone copy $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --azureblob-access-tier=$TIER --copy-links
+/usr/bin/rclone copy $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --azureblob-access-tier=$TIER --copy-links $XXARGS
