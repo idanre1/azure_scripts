@@ -9,6 +9,8 @@ parser.add_argument("-a", "--account", action='store', type=str, required=True, 
 parser.add_argument("-s", "--subscription", action='store', type=str, default='', help="Which subscription to handle")
 parser.add_argument("-n", "--name", action='store', type=str, required=True,    help="Container name")
 parser.add_argument("-p", "--password", action='store', type=str, default='',help=".aes file password")
+
+parser.add_argument("-c", "--credentials", action='store', type=str, default='account',help="which SAS token to generate: account/container")
 # parser.add_argument("-t", "--tier", action='store', type=str, default='TransactionOptimized', help="Hot, Cold")
 
 args = parser.parse_args()
@@ -68,20 +70,42 @@ assert res['created'], f'RAW Result: {res}'
 print(f'Blob container created.')
 
 # Generate account SAS
+print('Generate SAS token')
 from datetime import datetime
 # 1 year token
 now = datetime.now()
 expiry=f'{now.year+1}-{now.month}-{now.day}'
 
-# https://learn.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-generate-sas
-res=az_cli(f'storage account generate-sas --account-name {args.account} --account-key "{key}" --permissions cdlruwap --services b --resource-types sco --expiry {expiry}')
-assert isinstance(res,str), f'az_cli returned a non-sas secret:\n{res}'
+if args.credentials == 'account':
+    # dvc must have account level credentials
 
-# credentials
-# https://dvc.org/doc/command-reference/remote/modify
-# export AZURE_STORAGE_SAS_TOKEN='mysecret'
-d={}
-d['AZURE_STORAGE_SAS_TOKEN']=res
+    # https://learn.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-generate-sas
+    res=az_cli(f'storage account generate-sas --account-name {args.account} --account-key "{key}" --https-only --permissions cdlruwap --services b --resource-types sco --expiry {expiry}')
+    assert isinstance(res,str), f'az_cli returned a non-sas secret:\n{res}'
+
+    # credentials
+    # https://dvc.org/doc/command-reference/remote/modify
+    # export AZURE_STORAGE_SAS_TOKEN='mysecret'
+    d={}
+    d['AZURE_STORAGE_SAS_TOKEN']=res
+elif args.credentials == 'container':
+    # rclone can handle container level credentials
+    
+    #https://learn.microsoft.com/en-us/cli/azure/storage/container?view=azure-cli-latest#az-storage-container-generate-sas
+    res=az_cli(f'storage container generate-sas --name {args.name} --account-name {args.account} --account-key "{key}" --https-only --permissions dlrw --expiry {expiry}')
+    assert isinstance(res,str), f'az_cli returned a non-sas secret:\n{res}'
+
+    # credentials
+    # https://rclone.org/azureblob/#sas-url
+    # RCLONE_AZUREBLOB_SAS_URL
+
+    res_url=az_cli(f'storage account show --name {args.account} --query primaryEndpoints.blob')
+    d={}
+    d['RCLONE_AZUREBLOB_SAS_URL']=f'{res_url}?{res}'
+else:
+    raise(f'Error: unknown credentials type: {args.credentials}')
+
+# fold
 aes=aesCryptJson(filename, password)
 aes.encrypt(d)
 print('Credentials file: %s' % filename)
