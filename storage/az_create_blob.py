@@ -101,6 +101,7 @@ elif args.credentials == 'container':
 
     res_url=az_cli(f'storage account show --name {args.account} --query primaryEndpoints.blob')
     d={}
+    d['AZURE_STORAGE_SAS_TOKEN']=res
     d['RCLONE_AZUREBLOB_SAS_URL']=f'{res_url}?{res}'
 else:
     raise(f'Error: unknown credentials type: {args.credentials}')
