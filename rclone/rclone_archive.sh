@@ -25,4 +25,4 @@ if [ "$TIER" = 'Archive' ]; then
     fi
 fi
 
-/usr/bin/rclone copy $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --azureblob-access-tier=$TIER --copy-links $XXARGS
+/usr/bin/rclone copy $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --azureblob-access-tier=$TIER --copy-links $XXARGS -v
