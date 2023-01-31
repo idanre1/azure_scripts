@@ -13,6 +13,7 @@ elif [ $# -ge 4 ]; then
     XXARGS=${@:5}
 else
     echo "Arguments mismatch"
+    exit
 fi
 
 echo "Selected Tier: $TIER"
