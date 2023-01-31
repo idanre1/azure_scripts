@@ -11,7 +11,7 @@ parser.add_argument("-n", "--name", action='store', type=str, required=True,    
 parser.add_argument("-m", "--mount_path", action='store', type=str, required=True,    help="Mount path to the fileshare")
 
 args = parser.parse_args()
-filename = f'storage--{args.account}--{args.name}.cred'
+filename = f'fileshare--{args.account}--{args.name}.cred'
 
 # Check mount
 import os
