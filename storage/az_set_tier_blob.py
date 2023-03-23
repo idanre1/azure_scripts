@@ -41,7 +41,7 @@ req=f'storage blob set-tier --account-name {args.account} --container-name {args
 for f in select:
     print(f'Processing {f}')
     res=az_cli(f'{req} --name {f} --tier {args.to_tier}')
-    assert res is not None, res
+    assert res is None, res
 
 print('Done')
 
