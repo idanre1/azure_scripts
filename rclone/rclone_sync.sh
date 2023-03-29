@@ -1,5 +1,5 @@
 #!/bin/bash
-# Usage: rclone_sync.sh <storage_account> <container> <path> [-i for interactive]
+# Usage: rclone_sync.sh <storage_account> <container>[/remote_path] <path|file> [tier] [-i for interactive]
 
 # https://forum.rclone.org/t/can-rclone-be-run-solely-with-command-line-options-no-config-no-env-vars/6314/5
 ACCOUNT=$1
