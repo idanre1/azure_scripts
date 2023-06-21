@@ -1,43 +1,104 @@
 # pip install azure-cli
 from azure_env_crypt import aesCryptJson, az_cli, az_login
 
-# Check login
-az_login()
-
-# Using default subscription
-res=az_cli('account list')
-subscription=res[0]['id']
-tenantId=res[0]['tenantId']
-
 # argument parsing
 import argparse
 parser = argparse.ArgumentParser()
-parser.add_argument("-r", "--rg", action='store', type=str, required=True,      help="Resource group for the storage account")
 parser.add_argument("-a", "--account", action='store', type=str, required=True, help="Storage account where container lives")
-parser.add_argument("-n", "--name", action='store', type=str, required=True,    help="Container name for granting RBAC credentials")
+parser.add_argument("-s", "--subscription", action='store', type=str, default='', help="If more than one, which subscription to handle")
 
-parser.add_argument("-p", "--password", action='store', type=str, required=True,help=".aes file password")
+parser.add_argument("-n", "--name", action='store', type=str, required=True,    help="Container name for granting SAS credentials")
+parser.add_argument("-p", "--password", action='store', type=str, default='',   help=".aes file password")
+
+parser.add_argument("-c", "--credentials", action='store', type=str, default='account',help="which SAS token to generate: account/container")
+
 args = parser.parse_args()
-name = f'storage--{args.account}--{args.name}'
+filename = f'storage--{args.account}--{args.name}.aes'
 
-# Creating rbac credentials
-res=az_cli(f'ad sp create-for-rbac \
- --name {name} \
- --role Storage#Blob#Data#Contributor \
- --scopes /subscriptions/{subscription}/resourceGroups/{args.rg}/providers/Microsoft.Storage/storageAccounts/{args.account}/blobServices/default/containers/{args.name}')
-appId=res['appId']
-secret=res['password']
+# Check for valid password
+if args.password == '':
+    from getpass import getpass
+    password=getpass(prompt='Enter aes file password: ')
+else:
+    password=args.password
 
-res=az_cli(f'role assignment create --assignee {appId} \
- --role Reader \
- --scope /subscriptions/{subscription}/resourceGroups/{args.rg}/providers/Microsoft.Storage/storageAccounts/{args.account}')
 
-# Encrypting RBAC credentials
-d = {}
-d['AZURE_TENANT_ID']=tenantId
-d['AZURE_CLIENT_ID']=appId
-#d['AZURE_CLIENT_CERTIFICATE_PATH']=secret
-d['AZURE_CLIENT_SECRET']=secret
-aes=aesCryptJson(f'{name}.aes', args.password)
+
+# Check login
+az_login()
+
+res=az_cli('account list')
+if args.subscription == '':
+    # Using default subscription
+    assert len(res) == 1, f"More than one subscription provided:{[s['name'] for s in res]}"
+    subscription=res[0]['id']
+    tenantId=res[0]['tenantId']
+else:
+    for i,s in enumerate(res):
+        if args.subscription == s['name']:
+            subscription=res[i]['id']
+            tenantId=res[i]['tenantId']
+print(f'Subscription:{subscription}')
+print(f'TenantId:{tenantId}')
+
+# Find key
+res=az_cli(f'storage account keys list --account-name {args.account}')
+# [
+#   {
+#     "creationTime": "2021-08-27T11:51:30.171586+00:00",
+#     "keyName": "key1",
+#     "permissions": "FULL",
+#     "value": "pass1"
+#   },
+#   {
+#     "creationTime": "2021-08-27T11:51:30.171586+00:00",
+#     "keyName": "key2",
+#     "permissions": "FULL",
+#     "value": "pass2"
+#   }
+# ]
+key = res[0]['value']
+
+
+# Generate account SAS
+print('Generate SAS token')
+from datetime import datetime
+# 1 year token
+now = datetime.now()
+expiry=f'{now.year+1}-{now.month}-{now.day}'
+
+if args.credentials == 'account':
+    # dvc must have account level credentials
+
+    # https://learn.microsoft.com/en-us/cli/azure/storage/account?view=azure-cli-latest#az-storage-account-generate-sas
+    res=az_cli(f'storage account generate-sas --account-name {args.account} --account-key "{key}" --https-only --permissions cdlruwapip --services bfqt --resource-types sco --expiry {expiry}')
+    assert isinstance(res,str), f'az_cli returned a non-sas secret:\n{res}'
+
+    # credentials
+    # https://dvc.org/doc/command-reference/remote/modify
+    # export AZURE_STORAGE_SAS_TOKEN='mysecret'
+    d={}
+    d['AZURE_STORAGE_SAS_TOKEN']=res
+elif args.credentials == 'container':
+    # rclone can handle container level credentials
+    
+    #https://learn.microsoft.com/en-us/cli/azure/storage/container?view=azure-cli-latest#az-storage-container-generate-sas
+    res=az_cli(f'storage container generate-sas --name {args.name} --account-name {args.account} --account-key "{key}" --https-only --permissions dlrw --expiry {expiry}')
+    assert isinstance(res,str), f'az_cli returned a non-sas secret:\n{res}'
+
+    # credentials
+    # https://rclone.org/azureblob/#sas-url
+    # RCLONE_AZUREBLOB_SAS_URL
+
+    res_url=az_cli(f'storage account show --name {args.account} --query primaryEndpoints.blob')
+    d={}
+    d['AZURE_STORAGE_SAS_TOKEN']=res
+    d['RCLONE_AZUREBLOB_SAS_URL']=f'{res_url}?{res}'
+else:
+    raise(f'Error: unknown credentials type: {args.credentials}')
+
+
+# fold
+aes=aesCryptJson(filename, password)
 aes.encrypt(d)
-print('Credentials file: %s.aes' % name)
+print('Credentials file: %s' % filename)
