@@ -25,8 +25,8 @@ async def run(func):
 				received_msgs = await receiver.receive_messages(max_wait_time=500, max_message_count=20)
 				for msg in received_msgs:
 					# print("Received: " + str(msg))
-					os.system(f'python {func} "{str(msg)}"')
-					# result = json.loads(str(msg))
+					result = json.loads(str(msg))
+					os.system(f'''python {func} '{json.dumps(result)}' ''')
 					# print(result['eventType'])
 					# print(result['data']['blobUrl'])
 					# complete the message so that the message is removed from the queue
