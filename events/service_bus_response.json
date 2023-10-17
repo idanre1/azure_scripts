@@ -1,0 +1,25 @@
+{
+    "topic": "/subscriptions/b19cdaea-c0de-4cb1-816e-205150ca1827/resourceGroups/rg-crypto/providers/Microsoft.Storage/storageAccounts/crwar",
+    "subject": "/blobServices/default/containers/raw/blobs/az_copy.md",
+    "eventType": "Microsoft.Storage.BlobCreated",
+    "id": "33822258-301e-0043-24ba-00ea3d068549",
+    "data": {
+      "api": "PutBlob",
+      "clientRequestId": "23248762-6cae-11ee-8f77-b97a047b6153",
+      "requestId": "33822258-301e-0043-24ba-00ea3d000000",
+      "eTag": "0x8DBCED207914984",
+      "contentType": "application/octet-stream",
+      "contentLength": 884,
+      "blobType": "BlockBlob",
+      "blobUrl": "https://crwar.blob.core.windows.net/raw/az_copy.md",
+      "url": "https://crwar.blob.core.windows.net/raw/az_copy.md",
+      "sequencer": "00000000000000000000000000000be80000000000b4cb7a",
+      "identity": "$superuser",
+      "storageDiagnostics": {
+        "batchId": "eb775d4a-e006-006f-00ba-000692000000"
+      }
+    },
+    "dataVersion": "",
+    "metadataVersion": "1",
+    "eventTime": "2023-10-17T05:29:26.8519092Z"
+  }
