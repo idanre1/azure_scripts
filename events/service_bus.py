@@ -24,7 +24,7 @@ async def run(func, creds):
 			# get the Queue Receiver object for the queue
 			receiver = servicebus_client.get_queue_receiver(queue_name=QUEUE_NAME)
 			async with receiver:
-				received_msgs = await receiver.receive_messages(max_wait_time=500, max_message_count=20)
+				received_msgs = await receiver.receive_messages(max_wait_time=5000, max_message_count=20)
 				for msg in received_msgs:
 					# print("Received: " + str(msg))
 					result = json.loads(str(msg))
