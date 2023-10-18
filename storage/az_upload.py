@@ -3,6 +3,7 @@
 
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from azure.core.exceptions import ResourceExistsError
 
 def get_blob_service_client_sas(account, sas_token: str):
 	# TODO: Replace <storage-account-name> with your actual storage account name
@@ -20,7 +21,10 @@ def upload_blob_file(blob_service_client: BlobServiceClient, container_name: str
 	with open(filename, mode="rb") as data:
 		from pathlib import Path
 		p = Path(filename)
-		blob_client = container_client.upload_blob(name=p.name, data=data, overwrite=overwrite)
+		try:
+			blob_client = container_client.upload_blob(name=p.name, data=data, overwrite=overwrite)
+		except ResourceExistsError:
+			print(f'Error: file already exists {filename}')
 
 if __name__ == "__main__":
 	import argparse
