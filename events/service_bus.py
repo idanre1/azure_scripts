@@ -44,4 +44,6 @@ if __name__ == "__main__":
 	print('starting')
 	while True:
 			print('Loop')
-			asyncio.run(run(args.python_filename))
+			asyncio.run(
+				run(args.python_filename, args.cred)
+				)
