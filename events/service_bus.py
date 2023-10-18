@@ -6,13 +6,15 @@ import asyncio
 from azure.servicebus.aio import ServiceBusClient
 
 import json
-with open('service_bus_cred.json') as fh:
-	creds = json.load(fh)
-	NAMESPACE_CONNECTION_STR = creds['NAMESPACE_CONNECTION_STR']
-	QUEUE_NAME = creds['QUEUE_NAME']
 
 import os
-async def run(func):
+async def run(func, creds):
+	# credentails
+	with open(creds) as fh:
+		creds = json.load(fh)
+		NAMESPACE_CONNECTION_STR = creds['NAMESPACE_CONNECTION_STR']
+		QUEUE_NAME = creds['QUEUE_NAME']
+
 	# create a Service Bus client using the connection string
 	async with ServiceBusClient.from_connection_string(
 		conn_str=NAMESPACE_CONNECTION_STR,
@@ -36,6 +38,7 @@ if __name__ == "__main__":
 	import argparse
 	parser = argparse.ArgumentParser(description='Handle events from azure storage')
 	parser.add_argument('python_filename', type=str, default="print_only_created_blobs", help='python filename to execute when processing an event')
+	parser.add_argument('--cred', type=str, default="service_bus_cred.json", help='credentials pile')
 	args = parser.parse_args()
 
 	print('starting')
