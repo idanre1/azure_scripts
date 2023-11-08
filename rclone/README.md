@@ -1,7 +1,9 @@
 # Install
 - Use install script
-- Create sp file for rclone.conf with `rclone_blob_grant_sp.py`
-- Create the file `/nas/orchestrator/rclone/rclone.conf`
-- Run `rclone_config.sh`
+- Register a storage account with SAS_URL
+    -   `python ~/azure_scripts/storage/az_register_container.py -c container -a <storage_account> -n <.aes_file>`
 # Usage
+- Apply credentials
+- `source ~/azure_scripts/env_from_aes_file.sh <.aes_file>`
 - Try to ls a container
+    - ~/azure_scripts/rclone/rclone_ls.sh <account> <container>

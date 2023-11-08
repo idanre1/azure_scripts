@@ -1,5 +1,6 @@
 #!/bin/bash
 # Usage: rclone_sync.sh <storage_account> <container>[/remote_path] <path|file> [tier] [-i for interactive]
+#        rclone_sync.sh <storage_account> <container> . Hot --exclude .git/
 
 # https://forum.rclone.org/t/can-rclone-be-run-solely-with-command-line-options-no-config-no-env-vars/6314/5
 ACCOUNT=$1
@@ -27,4 +28,4 @@ if [ "$TIER" = 'Archive' ]; then
     fi
 fi
 
-/usr/bin/rclone sync $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --copy-links -v $XXARGS
+/usr/bin/rclone sync $PATH :azureblob:$CONTAINER --azureblob-account=$ACCOUNT --azureblob-sas-url $RCLONE_AZUREBLOB_SAS_URL --copy-links -v $XXARGS
