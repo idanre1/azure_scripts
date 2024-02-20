@@ -3,6 +3,7 @@ import re
 from azure_env_crypt import aesCryptJson, az_cli, az_login
 
 # argument parsing
+# python ~/azure_scripts/storage/az_set_tier_blob.py -a account -c datasets -p path_a/sun_dir -f Hot -t Cool
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("-a", "--account", action='store', type=str, required=True,   help="Storage account where container lives")
@@ -12,8 +13,8 @@ parser.add_argument("-f", "--from_tier", action='store', type=str, required=True
 parser.add_argument("-t", "--to_tier", action='store', type=str, required=True,   help="Which tier to set: Hot, Cold, Archive")
 
 args = parser.parse_args()
-# Check login
-az_login()
+# Check login not used - using AZURE_STORAGE_SAS_TOKEN
+# az_login()
 
 import os
 sas_token=os.getenv('AZURE_STORAGE_SAS_TOKEN')

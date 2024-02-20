@@ -1,6 +1,6 @@
 #!/bin/sh
 # Usage:
-# json_to_aes_file.sh < filename.json
+# json_to_aes_file.sh filename.json
 
 if [ -e $1 ]; then
     echo ""
