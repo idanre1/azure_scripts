@@ -5,6 +5,15 @@
 		},
 		{
 			"path": "/nas/python_lib/azure_env_crypt"
+		},
+		{
+			"path": "/nas/settings"
+		},
+		{
+			"path": "/nas/scripts"
+		},
+		{
+			"path": "/nas/python_lib"
 		}
 	]
 }
