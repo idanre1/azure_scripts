@@ -4,6 +4,7 @@
 
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+from az_creds_util import get_az_creds
 
 def get_blob_service_client_sas(account, sas_token: str):
 	# TODO: Replace <storage-account-name> with your actual storage account name
@@ -31,10 +32,7 @@ if __name__ == "__main__":
 	parser.add_argument('filename', type=str, help='file to upload')
 	args = parser.parse_args()
 
-	with open(args.creds) as fh:
-		import json
-		creds = json.load(fh)
-		sas_token = creds['SAS_TOKEN']
+	sas_token = get_az_creds(args.creds)
 
 	blob_service_client = get_blob_service_client_sas(args.account,sas_token)
 	download_blob_to_file(blob_service_client, args.container, args.filename)
