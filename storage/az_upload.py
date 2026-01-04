@@ -259,6 +259,14 @@ if __name__ == "__main__":
 		help="optional prefix (virtual folder) inside the container",
 	)
 	parser.add_argument(
+		"--auto-prefix-from-path",
+		action="store_true",
+		help=(
+		"derive prefix (virtual folder) automatically from the "
+		"provided path argument"
+		),
+	)
+	parser.add_argument(
 		"--overwrite",
 		action="store_true",
 		help="overwrite existing blobs",
@@ -275,17 +283,41 @@ if __name__ == "__main__":
 		default=4,
 		help="per-blob max_concurrency for Azure SDK (default: 4)",
 	)
+
+	parser.set_defaults(auto_prefix_from_path=True)
+
 	args = parser.parse_args()
 
 	sas_token = get_az_creds(args.creds)
 	blob_service_client = get_blob_service_client_sas(args.account, sas_token)
+
+	# Resolve prefix: explicit --prefix or derived from path when requested
+	prefix = args.prefix
+
+	if args.auto_prefix_from_path:
+		if prefix:
+			raise SystemExit(
+				"--auto-prefix-from-path cannot be used together with --prefix"
+			)
+
+		raw_path = args.path
+
+		# If the path contains wildcards, use the parent directory of the pattern
+		if any(ch in raw_path for ch in "*?[]"):
+			base = Path(raw_path).parent
+		else:
+			p = Path(raw_path)
+			base = p if p.is_dir() else p.parent
+
+		derived = base.as_posix().rstrip("/")
+		prefix = derived or None
 
 	# Single entry point: upload_folder handles file, folder, and wildcard patterns
 	upload_folder(
 		blob_service_client,
 		args.container,
 		args.path,
-		prefix=args.prefix,
+		prefix=prefix,
 		overwrite=args.overwrite,
 		max_workers=args.workers,
 		max_concurrency=args.max_concurrency,
